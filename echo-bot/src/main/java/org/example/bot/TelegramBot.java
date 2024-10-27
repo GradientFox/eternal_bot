@@ -5,24 +5,34 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.HashMap;
+import java.util.Map;
+
+
 public class TelegramBot extends TelegramLongPollingBot {
+    Handler handler = new Handler();
+
+    @Override
+    public String getBotUsername() {
+        return "eternal_work_bot";
+    }
+
+    @Override
+    public String getBotToken() {
+        return System.getenv("TG_TOKEN");
+    }
+
     @Override
     public void onUpdateReceived(Update update) {
         String chatId = update.getMessage().getChatId().toString();
         String text = update.getMessage().getText();
+        this.sendMessage(chatId, handler.getAnswer(text));
+    }
 
+    public void sendMessage(String chatId, String msg) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
-        switch (text) {
-            case ("/start"):
-                message.setText("Привет, человек!\nЯ эхо-бот Этернал!");
-                break;
-            case ("/help"):
-                message.setText("Все что я могу на данный момент, это отвечать тебе твоим же текстом.\nА так же имею две уникальные команды '/start', '/help'.");
-                break;
-            default:
-                message.setText(text);
-        }
+        message.setText(msg);
         try {
             this.execute(message);
         } catch (TelegramApiException e) {
@@ -30,13 +40,4 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    @Override
-    public String getBotUsername() {
-        return "eternal_bot";
-    }
-
-    @Override
-    public String getBotToken() {
-        return "7938055245:AAFIbaLJpgosuBNSG9NDidwVBydjHo3ufFk";
-    }
 }
