@@ -5,12 +5,9 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.HashMap;
-import java.util.Map;
-
 
 public class TelegramBot extends TelegramLongPollingBot {
-    Handler handler = new Handler();
+    HandlerBot handler = new HandlerBot();
 
     @Override
     public String getBotUsername() {
@@ -25,8 +22,9 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         String chatId = update.getMessage().getChatId().toString();
-        String text = update.getMessage().getText();
-        this.sendMessage(chatId, handler.getAnswer(text));
+        String userText = update.getMessage().getText();
+        this.sendMessage(chatId, handler.getResponse(userText, chatId));
+        System.out.println(handler.getResponse(userText, chatId));
     }
 
     public void sendMessage(String chatId, String msg) {
