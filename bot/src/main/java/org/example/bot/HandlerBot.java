@@ -7,36 +7,61 @@ import org.example.user.User;
 import java.io.Console;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class HandlerBot {
     private List<User> usersData;
 
-    public HandlerBot(){
+    public HandlerBot() {
         usersData = new ArrayList<User>();
     }
 
-    public void addUser(String chatId){
+    public void addUser(String chatId) {
         usersData.add(new User(chatId));
     }
 
-    public User getUserByChatId(String chatId){
-        if (!usersData.isEmpty()){
-            for (User user: usersData) {
-                if (user.getUserChatId() == chatId)
+    public User getUserByChatId(String chatId) {
+        if (!usersData.isEmpty()) {
+            for (User user : usersData) {
+                if (Objects.equals(user.getUserChatId(), chatId))
                     return user;
             }
         }
         addUser(chatId);
-        return usersData.get(usersData.size()-1);
+        return usersData.get(usersData.size() - 1);
     }
-    public String getResponse(String userText, String chatId){
+
+    public String getResponse(String userText, String chatId) {
         User user = getUserByChatId(chatId);
-        for (Command command : user.commandsData){
-            if (Objects.equals(userText, command.triggerCommand) || command.currentState != 0){
-                return command.getAnswer();
+        Command currentCommand = null;
+        String response = null;
+        for (Command command : user.commandsData) {
+            if (Objects.equals(userText, command.triggerCommand)) {
+                currentCommand = command;
             }
         }
-        return "Я не понимаю такой запрос, напишите '/help' чтобы узнать что я могу делать.";
+        for (Command command : user.commandsData) {
+            if (command.currentState != 0) {
+                if (currentCommand != null)
+                    command.resetState();
+                else
+                    currentCommand = command;
+            }
+        }
+        if (currentCommand == null)
+            response = "Я не понимаю такой запрос, напишите '/help' чтобы узнать что я могу делать.";
+        else {
+            response = currentCommand.getAnswer();
+            Integer state = currentCommand.currentState;
+            currentCommand.addData(userText);
+            if (Objects.equals(currentCommand.triggerCommand, "Ежедневник") && state != 0 && currentCommand.answerByState.size() - 1 == state)
+            {
+                Map<String, String> temp = currentCommand.getData();
+                user.addTask(temp.get("date"), temp.get("time"), temp.get("task"));
+            }
+            currentCommand.updateState();
+        }
+        return response;
     }
 }

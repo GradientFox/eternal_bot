@@ -12,7 +12,12 @@ public class StartCommand extends Command {
     }
 
     @Override
-    public String getAnswer() {
-        return answerByState.get(currentState);
+    public Map<String, String> getData() {
+        return Map.of();
+    }
+
+    @Override
+    public void addData(String userText) {
+        return;
     }
 }
