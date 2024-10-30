@@ -24,7 +24,6 @@ public class TelegramBot extends TelegramLongPollingBot {
         String chatId = update.getMessage().getChatId().toString();
         String userText = update.getMessage().getText();
         this.sendMessage(chatId, handler.getResponse(userText, chatId));
-        System.out.println(handler.getResponse(userText, chatId));
     }
 
     public void sendMessage(String chatId, String msg) {
