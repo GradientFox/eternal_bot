@@ -1,7 +1,10 @@
 package org.example.user;
 
 import org.example.commands.*;
+import org.example.db.DataBase;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,29 +13,36 @@ import java.util.Map;
 public class User {
     private final String userChatId;
     public List<Command> commandsData;
-    private Map<String, Map<String, String>> userTasks;
+    DataBase dataBase;
 
-    public User(String chatId) {
+
+    public User(String chatId, DataBase db) {
+        dataBase = db;
         userChatId = chatId;
         commandsData = List.of(
                 new StartCommand(),
                 new HelpCommand(),
                 new NewTaskCommand(),
-                new GetTaskCommand(this)
+                new GetTaskCommand(this),
+                new RemoveTaskCommand(this)g
         );
-        userTasks = new HashMap<String, Map<String, String>>();
     }
 
     public void addTask(String date, String time, String task) {
-        userTasks.put(date, Map.of(time, task));
+        dataBase.updateUser(userChatId, task, date, time);
+    }
+
+    public void clearTable() {
+        dataBase.clearTable(userChatId);
     }
 
     public List<String> getUserTasks() {
         List<String> temp = new ArrayList<>();
-        for (String date : userTasks.keySet()) {
-            for (String time: userTasks.get(date).keySet()){
-                String task = userTasks.get(date).get(time);
-                temp.add(String.format("%s %s - %s", date, time, task));
+        Map<String, Map<String, String>> userTasks = dataBase.getUserTask(userChatId);
+        for (String task : userTasks.keySet()) {
+            for (String date : userTasks.get(task).keySet()) {
+                String time = userTasks.get(task).get(date);
+                temp.add(String.format("%s / %s - %s", task, date, time));
             }
         }
         return temp;

@@ -7,7 +7,7 @@ public class HelpCommand extends Command {
         this.triggerCommand = "/help";
         this.currentState = 0;
         this.answerByState = Map.of(
-                0, "Вот список моих комманд: '/start', '/help', 'Ежедневник'"
+                0, "Вот список моих комманд: '/start', '/help', 'Ежедневник', 'Дела'"
         );
     }
 
