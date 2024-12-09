@@ -1,10 +1,12 @@
 package org.example.bot;
 
 import org.example.commands.Command;
+import org.example.db.DataBase;
 import org.example.user.User;
 
 
 import java.io.Console;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -12,13 +14,19 @@ import java.util.Objects;
 
 public class HandlerBot {
     private List<User> usersData;
+    private DataBase dataBase;
 
     public HandlerBot() {
         usersData = new ArrayList<User>();
+        try {
+            dataBase = new DataBase();
+        } catch (SQLException e){
+            System.out.println("Create DB class error");
+        }
     }
 
     public void addUser(String chatId) {
-        usersData.add(new User(chatId));
+        usersData.add(new User(chatId, dataBase));
     }
 
     public User getUserByChatId(String chatId) {
@@ -60,8 +68,13 @@ public class HandlerBot {
                 Map<String, String> temp = currentCommand.getData();
                 user.addTask(temp.get("date"), temp.get("time"), temp.get("task"));
             }
+            else if (Objects.equals(currentCommand.triggerCommand, "/clear"))
+            {
+                user.clearTable();
+            }
             currentCommand.updateState();
         }
         return response;
     }
+
 }

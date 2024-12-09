@@ -7,8 +7,8 @@ import java.util.Map;
 
 public class GetTaskCommand extends Command {
     User user;
-    public GetTaskCommand(User user) {
-        this.user = user;
+    public GetTaskCommand(User usr) {
+        user = usr;
         triggerCommand = "Дела";
         currentState = 0;
         answerByState = Map.of(
