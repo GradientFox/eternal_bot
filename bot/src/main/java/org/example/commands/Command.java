@@ -4,12 +4,22 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class Command {
-    public Map<Integer, String> answerByState;
+    public enum Markup {
+        None,
+        Calendar,
+        Menu
+    }
+
+    public Map<Integer, Map<Integer, Object>> answerByState;
     public Integer currentState;
     public String triggerCommand;
 
     public String getAnswer() {
-        return answerByState.get(currentState);
+        return answerByState.get(currentState).get(0).toString();
+    }
+
+    public Markup getMarkup() {
+        return (Markup) answerByState.get(currentState).get(1);
     }
 
     public void updateState() {
@@ -28,5 +38,6 @@ public abstract class Command {
     }
 
     public abstract Map<String, String> getData();
+
     public abstract void addData(String userText);
 }

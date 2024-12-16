@@ -12,7 +12,10 @@ public class RemoveTaskCommand extends Command {
         triggerCommand = "/clear";
         currentState = 0;
         answerByState = Map.of(
-                0, "Готово."
+                0, Map.of(
+                        0, "Готово.",
+                        1, Markup.None
+                )
         );
     }
 
