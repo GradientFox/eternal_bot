@@ -12,10 +12,22 @@ public class NewTaskCommand extends Command {
         triggerCommand = "Ежедневник";
         currentState = 0;
         answerByState = Map.of(
-                0, "Введи дату в формате ДД.ММ.ГГГГ",
-                1, "Введи время в формате ХХ.ХХ",
-                2, "Оки, напиши задачу",
-                3, "Задача добавлена✅"
+                0, Map.of(
+                        0, "Выберите дату текущего месяца:",
+                        1, Markup.Calendar
+                ),
+                1, Map.of(
+                        0, "Введи время в формате ХХ.ХХ",
+                        1, Markup.None
+                ),
+                2, Map.of(
+                        0,"Оки, напиши задачу",
+                        1, Markup.None
+                ),
+                3, Map.of(
+                        0, "Задача добавлена✅",
+                        1, Markup.None
+                )
         );
         data = new HashMap<>(Map.of(
                 "date", "",

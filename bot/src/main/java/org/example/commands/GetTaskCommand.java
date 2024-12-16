@@ -12,7 +12,10 @@ public class GetTaskCommand extends Command {
         triggerCommand = "Дела";
         currentState = 0;
         answerByState = Map.of(
-                0, "У тебя пока нет задач, если хочешь их добавить напиши 'Ежедневник'"
+                0, Map.of(
+                        0, "У тебя пока нет задач, если хочешь их добавить напиши 'Ежедневник'",
+                        1, Markup.None
+                )
         );
     }
 
@@ -22,7 +25,7 @@ public class GetTaskCommand extends Command {
         String response = "";
         List<String> temp = user.getUserTasks();
         if (temp.isEmpty())
-            response = answerByState.get(currentState);
+            response = answerByState.get(currentState).get(0).toString();
         else
             response = String.format("Твои задачи \n%s", String.join("\n", temp));
         return response;
