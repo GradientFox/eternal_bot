@@ -8,7 +8,7 @@ public class HelpCommand extends Command {
         this.currentState = 0;
         this.answerByState = Map.of(
                 0, Map.of(
-                        0, "Вот список моих комманд: '/start', '/help', 'Ежедневник', 'Дела'",
+                        0, "Вот список моих комманд: '/start', '/help', '/clear', 'Ежедневник', 'Дела', 'Погода'",
                         1, Markup.Menu
                 )
         );

@@ -11,7 +11,10 @@ public class GetTemperatureCommand extends Command {
         triggerCommand = "Погода";
         currentState = 0;
         answerByState = Map.of(
-                0, ""
+                0, Map.of(
+                        0, "",
+                        1, Markup.None
+                )
         );
     }
 
