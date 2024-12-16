@@ -6,6 +6,7 @@ import org.example.user.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
 
 import java.sql.SQLException;
@@ -23,7 +24,7 @@ public class HandlerBot {
         usersData = new ArrayList<User>();
         try {
             dataBase = new DataBase();
-        } catch (SQLException e){
+        } catch (SQLException e) {
             System.out.println("Create DB class error");
         }
     }
@@ -42,8 +43,8 @@ public class HandlerBot {
         addUser(chatId);
         return usersData.get(usersData.size() - 1);
     }
-    private Command getCurrentCommand(String userText, String chatId)
-    {
+
+    private Command getCurrentCommand(String userText, String chatId) {
         User user = getUserByChatId(chatId);
         Command currentCommand = null;
         for (Command command : user.commandsData) {
@@ -72,13 +73,10 @@ public class HandlerBot {
             response = currentCommand.getAnswer();
             Integer state = currentCommand.currentState;
             currentCommand.addData(userText);
-            if (Objects.equals(currentCommand.triggerCommand, "Ежедневник") && state != 0 && currentCommand.answerByState.size() - 1 == state)
-            {
+            if (Objects.equals(currentCommand.triggerCommand, "Ежедневник") && state != 0 && currentCommand.answerByState.size() - 1 == state) {
                 Map<String, String> temp = currentCommand.getData();
                 user.addTask(temp.get("date"), temp.get("time"), temp.get("task"));
-            }
-            else if (Objects.equals(currentCommand.triggerCommand, "/clear"))
-            {
+            } else if (Objects.equals(currentCommand.triggerCommand, "/clear")) {
                 user.clearTable();
             }
 //            currentCommand.updateState();
@@ -86,47 +84,83 @@ public class HandlerBot {
         return response;
     }
 
-    public InlineKeyboardMarkup getInlineMarkup(String userText, String chatId){
+    public InlineKeyboardMarkup getInlineMarkup(String userText, String chatId, int month) {
         Command currentCommand = getCurrentCommand(userText, chatId);
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> temp = new ArrayList<>();
         markupInline.setKeyboard(temp);
-        if (currentCommand == null)
-        {
+        if (currentCommand == null) {
             return markupInline;
         }
         if (currentCommand.getMarkup() == Command.Markup.Calendar) {
-            List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
-            LocalDate now = LocalDate.now();
-            int dayNum = 1;
-            while (dayNum <= now.getMonth().maxLength())
-            {
-                List<InlineKeyboardButton> rowInline = new ArrayList<>();
-                for (int i = 1; i < 8; i++) {
-                    InlineKeyboardButton button = new InlineKeyboardButton();
-                    button.setText("-");
-                    button.setCallbackData("-");
-                    if(dayNum<=now.getMonth().maxLength()){
-                        LocalDate day = now.withDayOfMonth(dayNum);
-                        if (day.getDayOfWeek().getValue() == i){
-                            button.setText(String.valueOf(dayNum));
-                            button.setCallbackData(day.toString());
-                            dayNum++;
-                        }
-                    }
-                    rowInline.add(button);
-                }
-                rowsInline.add(rowInline);
-            }
-            markupInline.setKeyboard(rowsInline);
+            markupInline = getCalendar(month);
         }
         currentCommand.updateState();
         return markupInline;
     }
 
-    public ReplyKeyboardMarkup getReplyMarkup(String userText, String chatId) {
+    public InlineKeyboardMarkup getCalendar(int month) {
+        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+        List<InlineKeyboardButton> dateLine = new ArrayList<>();
+        InlineKeyboardButton date = new InlineKeyboardButton();
+        int shiftYear = (month - 1) / 12;
 
+        int yyear = LocalDate.now().getYear() + shiftYear;
+        int mmonth = (LocalDate.now().getMonth().getValue() + month - 1) % 12 + 1;
+        int dday = 1;
+        LocalDate firstDay = LocalDate.of(yyear, mmonth, dday);
+        date.setText(String.format("%d - %s", firstDay.getYear(), firstDay.getMonth().toString()));
+        date.setCallbackData("-");
+        dateLine.add(date);
+        rowsInline.add(dateLine);
+        int dayNum = 1;
+        while (dayNum <= firstDay.getMonth().maxLength()) {
+            List<InlineKeyboardButton> rowInline = new ArrayList<>();
+            for (int i = 1; i < 8; i++) {
+                InlineKeyboardButton button = new InlineKeyboardButton();
+                button.setText("-");
+                button.setCallbackData("-");
+                if (dayNum <= firstDay.getMonth().maxLength()) {
+                    LocalDate day = firstDay.withDayOfMonth(dayNum);
+                    if (day.getDayOfWeek().getValue() == i) {
+                        button.setText(String.valueOf(dayNum));
+                        button.setCallbackData(day.toString());
+                        dayNum++;
+                    }
+                }
+                rowInline.add(button);
+            }
+            rowsInline.add(rowInline);
+        }
+        List<InlineKeyboardButton> navig = new ArrayList<>();
+        InlineKeyboardButton next = new InlineKeyboardButton();
+        next.setText(">>>");
+        next.setCallbackData("NEXT_MONTH");
+        InlineKeyboardButton prev = new InlineKeyboardButton();
+        prev.setText("<<<");
+        prev.setCallbackData("PREV_MONTH");
+        navig.add(prev);
+        navig.add(next);
+        rowsInline.add(navig);
+        markupInline.setKeyboard(rowsInline);
+        return markupInline;
+    }
+
+    public ReplyKeyboardMarkup getReplyMarkup(String userText, String chatId) {
+//        Command currentCommand = getCurrentCommand(userText, chatId);
         ReplyKeyboardMarkup markupReply = new ReplyKeyboardMarkup();
+//        List<KeyboardRow> keyboard = new ArrayList<>();
+//        if (currentCommand == null){
+//            return markupReply;
+//        }
+//        if (currentCommand.getMarkup() == Command.Markup.Menu){
+//            KeyboardRow task = new KeyboardRow();
+//            task.add("Ежедневник");
+//            task.add("Дела");
+//            KeyboardRow weather = new KeyboardRow();
+////            weather.add("Погода")
+//        }
         return markupReply;
     }
 }
