@@ -3,10 +3,7 @@ package org.example.user;
 import org.example.commands.*;
 import org.example.db.DataBase;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +21,7 @@ public class User {
                 new HelpCommand(),
                 new NewTaskCommand(),
                 new GetTaskCommand(this),
-                new RemoveTaskCommand(this)g
+                new RemoveTaskCommand(this)
         );
     }
 
