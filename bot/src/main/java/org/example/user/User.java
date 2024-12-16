@@ -21,7 +21,9 @@ public class User {
                 new HelpCommand(),
                 new NewTaskCommand(),
                 new GetTaskCommand(this),
-                new RemoveTaskCommand(this)
+                new RemoveTaskCommand(this),
+                new GetTemperatureCommand()
+
         );
     }
 
