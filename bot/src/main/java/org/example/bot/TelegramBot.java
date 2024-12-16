@@ -2,6 +2,7 @@ package org.example.bot;
 
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -13,7 +14,8 @@ import java.util.List;
 
 
 public class TelegramBot extends TelegramLongPollingBot {
-    HandlerBot handler = new HandlerBot();
+    private HandlerBot handler = new HandlerBot();
+    private int month = 12;
 
     @Override
     public String getBotUsername() {
@@ -32,9 +34,9 @@ public class TelegramBot extends TelegramLongPollingBot {
             String chatId = update.getMessage().getChatId().toString();
             String userText = update.getMessage().getText();
             System.out.println(String.format("Message - %s", chatId));
-            this.sendMessage(chatId,
+            sendMessage(chatId,
                         handler.getResponse(userText, chatId),
-                        handler.getInlineMarkup(userText, chatId));
+                        handler.getInlineMarkup(userText, chatId, month));
 
             return;
         }
@@ -42,9 +44,28 @@ public class TelegramBot extends TelegramLongPollingBot {
             System.out.println(update.getCallbackQuery().getData());
             String userText = update.getCallbackQuery().getData();
             String chatId = update.getCallbackQuery().getMessage().getChatId().toString();
-            this.sendMessage(chatId,
-                    handler.getResponse(userText, chatId),
-                    handler.getInlineMarkup(userText, chatId));
+            String messageId = update.getCallbackQuery().getMessage().getMessageId().toString();
+            System.out.println(messageId);
+            System.out.println(chatId);
+            if (userText.equals("NEXT_MONTH"))
+            {
+                month++;
+                sendEditMessage(chatId, messageId, handler.getCalendar(month));
+            }
+            else if (userText.equals("PREV_MONTH")){
+                month--;
+                sendEditMessage(chatId, messageId, handler.getCalendar(month));
+            }
+            else if (userText.equals("-"))
+            {
+                return;
+            }
+            else {
+                month = 12;
+                sendMessage(chatId,
+                        handler.getResponse(userText, chatId),
+                        handler.getInlineMarkup(userText, chatId, month));
+            }
             return;
         }
     }
@@ -68,5 +89,18 @@ public class TelegramBot extends TelegramLongPollingBot {
             throw new RuntimeException(e);
         }
     }
+    public void sendEditMessage(String chatId, String messageId, InlineKeyboardMarkup markupInline){
+        EditMessageText newMessage = new EditMessageText();
+        newMessage.setChatId(chatId);
+        newMessage.setMessageId(Integer.parseInt(messageId));
+        newMessage.setReplyMarkup(markupInline);
+        newMessage.setText("Выбери дату:");
+        try {
+            execute(newMessage);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
 
 }
