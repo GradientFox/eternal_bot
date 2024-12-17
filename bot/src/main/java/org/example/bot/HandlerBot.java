@@ -44,7 +44,7 @@ public class HandlerBot {
         return usersData.get(usersData.size() - 1);
     }
 
-    private Command getCurrentCommand(String userText, String chatId) {
+    public Command getCurrentCommand(String userText, String chatId) {
         User user = getUserByChatId(chatId);
         Command currentCommand = null;
         for (Command command : user.commandsData) {
@@ -95,7 +95,6 @@ public class HandlerBot {
         if (currentCommand.getMarkup() == Command.Markup.Calendar) {
             markupInline = getCalendar(month);
         }
-        currentCommand.updateState();
         return markupInline;
     }
 
@@ -134,33 +133,46 @@ public class HandlerBot {
             rowsInline.add(rowInline);
         }
         List<InlineKeyboardButton> navig = new ArrayList<>();
-        InlineKeyboardButton next = new InlineKeyboardButton();
-        next.setText(">>>");
-        next.setCallbackData("NEXT_MONTH");
-        InlineKeyboardButton prev = new InlineKeyboardButton();
-        prev.setText("<<<");
-        prev.setCallbackData("PREV_MONTH");
-        navig.add(prev);
-        navig.add(next);
+        InlineKeyboardButton nextYear = new InlineKeyboardButton();
+        nextYear.setText(">>>");
+        nextYear.setCallbackData("NEXT_YEAR");
+        InlineKeyboardButton prevYear = new InlineKeyboardButton();
+        prevYear.setText("<<<");
+        prevYear.setCallbackData("PREV_YEAR");
+        InlineKeyboardButton nextMonth = new InlineKeyboardButton();
+        nextMonth.setText(">");
+        nextMonth.setCallbackData("NEXT_MONTH");
+        InlineKeyboardButton prevMonth = new InlineKeyboardButton();
+        prevMonth.setText("<");
+        prevMonth.setCallbackData("PREV_MONTH");
+        navig.add(prevYear);
+        navig.add(prevMonth);
+        navig.add(nextMonth);
+        navig.add(nextYear);
         rowsInline.add(navig);
         markupInline.setKeyboard(rowsInline);
         return markupInline;
     }
 
     public ReplyKeyboardMarkup getReplyMarkup(String userText, String chatId) {
-//        Command currentCommand = getCurrentCommand(userText, chatId);
+        Command currentCommand = getCurrentCommand(userText, chatId);
         ReplyKeyboardMarkup markupReply = new ReplyKeyboardMarkup();
-//        List<KeyboardRow> keyboard = new ArrayList<>();
-//        if (currentCommand == null){
-//            return markupReply;
-//        }
-//        if (currentCommand.getMarkup() == Command.Markup.Menu){
-//            KeyboardRow task = new KeyboardRow();
-//            task.add("Ежедневник");
-//            task.add("Дела");
-//            KeyboardRow weather = new KeyboardRow();
-////            weather.add("Погода")
-//        }
+        List<KeyboardRow> keyboard = new ArrayList<>();
+        if (currentCommand == null){
+            markupReply.setKeyboard(keyboard);
+            return markupReply;
+        }
+        if (currentCommand.getMarkup() == Command.Markup.Menu){
+            KeyboardRow task = new KeyboardRow();
+            task.add("Ежедневник");
+            task.add("Дела");
+            KeyboardRow weather = new KeyboardRow();
+            weather.add("Погода");
+            keyboard.add(task);
+            keyboard.add(weather);
+            markupReply.setKeyboard(keyboard);
+        }
+        currentCommand.updateState();
         return markupReply;
     }
 }

@@ -26,7 +26,7 @@ public class NewTaskCommand extends Command {
                 ),
                 3, Map.of(
                         0, "Задача добавлена✅",
-                        1, Markup.None
+                        1, Markup.Menu
                 )
         );
         data = new HashMap<>(Map.of(
